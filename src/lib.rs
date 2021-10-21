@@ -12,8 +12,6 @@ impl<'a> Parser<'a> {
             .collect::<Vec<_>>();
         let mut captures = vec![input];
 
-        println!("splits: {:?}", splits);
-
         for pat in splits {
             captures = captures
                 .iter()
@@ -41,7 +39,6 @@ macro_rules! parse {
             let mut parser = eyes::Parser::new($input, $pattern);
             let mut captures = parser.captures();
             captures.reverse();
-            println!("caps: {:?}", captures);
 
             (
             $({
@@ -59,7 +56,6 @@ macro_rules! try_parse {
             let mut parser = eyes::Parser::new($input, $pattern);
             let mut captures = parser.captures();
             captures.reverse();
-            println!("caps: {:?}", captures);
 
             (
             $({
