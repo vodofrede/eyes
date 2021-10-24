@@ -9,6 +9,6 @@ repository = "https://git.palmoe.dk/vodofrede/eyes/"
 readme = "README.md"
 keywords = ["parsing", "parse", "simple", "no-deps"]
 categories = ["encoding", "parsing", "text-processing"]
-
+exclude = [".gitignore"]
 
 [dependencies]
