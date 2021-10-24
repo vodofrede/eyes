@@ -4,21 +4,38 @@ pub struct Parser<'a> {
 
 impl<'a> Parser<'a> {
     pub fn new(input: &'a str, template: &'a str) -> Option<Self> {
+        // find all patterns in the template
         let patterns = template
             .split("{}")
             .filter(|pat| pat != &"")
             .collect::<Vec<_>>();
+
         let mut captures = vec![input];
 
+        // recursively split the input into left and right parts, where left is a match and right is processed next iteration
         for (i, pat) in patterns.iter().enumerate() {
             let last = captures.pop()?;
+
+            // we need to match all whitespace, and not just a specific type of whitespace
             let (mut left, mut right) = last.split_once(pat)?;
+
+            // check if pattern is pure whitespace
+            if pat.chars().all(|c| c.is_whitespace()) {
+                // if it is, we want to remove it so we can match arbitrary whitespace
+                right = right.trim_start_matches(|c: char| c.is_whitespace());
+            }
+
+            println!("left: '{}', right: '{}'", left, right);
 
             // if the right side of the split doesn't contain the pattern,
             // we don't have to check if we can expand the match
             if right.contains(pat) {
+                // here we check if the pattern can be expanded without interfering with other patterns
                 let mut pattern_index = right.find(pat)? + left.len();
-                let next_pattern_index = right.find(patterns[i + 1])? + left.len();
+                let next_pattern_index = right
+                    .find(patterns.get(i + 1).unwrap_or(&""))
+                    .unwrap_or(pat.len())
+                    + left.len();
 
                 while next_pattern_index > pattern_index {
                     let (left_side, _) = input.split_at(pattern_index + 1);
@@ -30,6 +47,7 @@ impl<'a> Parser<'a> {
                 }
             }
 
+            // if the first chars aren't a placeholder, the first split will be empty. we don't want to add this to the list of captures
             if !left.is_empty() {
                 captures.push(left);
             }
@@ -118,5 +136,22 @@ mod tests {
             (op.unwrap().as_str(), x1, y1, x2, y2),
             ("turn off", Ok(660), Ok(55), Ok(986), Ok(197))
         );
+    }
+
+    #[test]
+    fn works_with_different_length_whitespace() {
+        let input = "  775  785    361";
+        let template = " {} {} {}";
+
+        println!("input: '{}'", input);
+        println!("pattern: '{}'", template);
+
+        let (a, b, c) = try_parse!(input, template, usize, usize, usize).unwrap();
+
+        println!("a: {:?}", a);
+        println!("b: {:?}", b);
+        println!("c: {:?}", c);
+
+        assert_eq!((a, b, c), (Ok(775), Ok(785), Ok(361)));
     }
 }
