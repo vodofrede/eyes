@@ -25,8 +25,6 @@ impl<'a> Parser<'a> {
                 right = right.trim_start_matches(|c: char| c.is_whitespace());
             }
 
-            println!("left: '{}', right: '{}'", left, right);
-
             // if the right side of the split doesn't contain the pattern,
             // we don't have to check if we can expand the match
             if right.contains(pat) {
