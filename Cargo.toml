@@ -2,6 +2,13 @@
 name = "eyes"
 version = "0.1.0"
 edition = "2018"
+description = "A simpler way to parse using human-readable templates"
 license-file="LICENSE.txt"
+homepage = "https://git.palmoe.dk/vodofrede/eyes/"
+repository = "https://git.palmoe.dk/vodofrede/eyes/"
+readme = "README.md"
+keywords = ["parsing", "parse", "simple", "no-deps"]
+categories = ["encoding", "parsing", "text-processing"]
+
 
 [dependencies]

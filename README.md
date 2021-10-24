@@ -6,6 +6,8 @@ Eyes was made for the primary purpose of parsing challenge inputs for [Advent of
 
 It currently provides limited functionality, but more options may be added provided they are useful additions for parsing slightly more complicated formats.
 
+Eyes does not have any dependencies, as I wanted to keep it simple to and lightweight in design. Good performance is not guaranteed, as the library isn't well tested yet.
+
 I was told this functionality is similar to `scanf` from C.
 
 ### Examples:
