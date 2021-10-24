@@ -1,17 +1,15 @@
 use eyes::*;
 
 fn main() {
-    let input = "#loll1 @ 338,764: 20x24";
-    let pattern = "#{} @ {},{}: {}x{}";
+    let input = "turn off 660,55 through 986,197";
+    let template = "{} {},{} through {},{}";
 
-    println!("input: {}", input);
-    println!("pattern: {}", pattern);
+    println!("input: '{}'", input);
+    println!("pattern: '{}'", template);
 
-    let (id, x, y, w, h) = parse!(input, pattern, String, f64, f32, usize, isize);
+    let (op, x1, y1, x2, y2) = try_parse!(input, template, String, usize, usize, usize, usize);
 
-    println!("id: {:?}", id);
-    println!("x: {:?}", x);
-    println!("y: {:?}", y);
-    println!("w: {:?}", w);
-    println!("h: {:?}", h);
+    println!("op: {:?}", op);
+    println!("p1: {:?}", (x1, y1));
+    println!("p2: {:?}", (x2, y2));
 }
