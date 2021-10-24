@@ -7,7 +7,8 @@ fn main() {
     println!("input: '{}'", input);
     println!("pattern: '{}'", template);
 
-    let (op, x1, y1, x2, y2) = try_parse!(input, template, String, usize, usize, usize, usize);
+    let (op, x1, y1, x2, y2) =
+        try_parse!(input, template, String, usize, usize, usize, usize).unwrap();
 
     println!("op: {:?}", op);
     println!("p1: {:?}", (x1, y1));

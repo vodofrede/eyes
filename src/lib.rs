@@ -3,7 +3,7 @@ pub struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
-    pub fn new(input: &'a str, template: &'a str) -> Self {
+    pub fn new(input: &'a str, template: &'a str) -> Option<Self> {
         let patterns = template
             .split("{}")
             .filter(|pat| pat != &"")
@@ -11,14 +11,14 @@ impl<'a> Parser<'a> {
         let mut captures = vec![input];
 
         for (i, pat) in patterns.iter().enumerate() {
-            let last = captures.pop().unwrap();
-            let (mut left, mut right) = last.split_once(pat).unwrap();
+            let last = captures.pop()?;
+            let (mut left, mut right) = last.split_once(pat)?;
 
             // if the right side of the split doesn't contain the pattern,
             // we don't have to check if we can expand the match
             if right.contains(pat) {
-                let mut pattern_index = right.find(pat).unwrap() + left.len();
-                let next_pattern_index = right.find(patterns[i + 1]).unwrap() + left.len();
+                let mut pattern_index = right.find(pat)? + left.len();
+                let next_pattern_index = right.find(patterns[i + 1])? + left.len();
 
                 while next_pattern_index > pattern_index {
                     let (left_side, _) = input.split_at(pattern_index + 1);
@@ -36,7 +36,7 @@ impl<'a> Parser<'a> {
             captures.push(right);
         }
 
-        Self { captures }
+        Some(Self { captures })
     }
 
     pub fn captures(&self) -> Vec<&'a str> {
@@ -48,7 +48,7 @@ impl<'a> Parser<'a> {
 macro_rules! parse {
     ($input: expr, $pattern: tt, $($type:ty),*) => {
         {
-            let parser = $crate::Parser::new($input, $pattern);
+            let parser = $crate::Parser::new($input, $pattern).unwrap();
             let captures = parser.captures();
             let mut iter = captures.iter();
 
@@ -61,11 +61,16 @@ macro_rules! parse {
 macro_rules! try_parse {
     ($input: expr, $pattern: tt, $($type:ty),*) => {
         {
-            let parser = $crate::Parser::new($input, $pattern);
-            let captures = parser.captures();
-            let mut iter = captures.iter();
+            if let Some(parser) = $crate::Parser::new($input, $pattern) {
+                let captures = parser.captures();
+                let mut iter = captures.iter();
 
-            ($(iter.next().unwrap().parse::<$type>()),*)
+                Some(($(iter.next().unwrap().parse::<$type>()),*))
+            } else {
+                None
+            }
+
+
         }
     };
 }
@@ -102,7 +107,8 @@ mod tests {
         println!("input: '{}'", input);
         println!("pattern: '{}'", template);
 
-        let (op, x1, y1, x2, y2) = try_parse!(input, template, String, usize, usize, usize, usize);
+        let (op, x1, y1, x2, y2) =
+            try_parse!(input, template, String, usize, usize, usize, usize).unwrap();
 
         println!("op: {:?}", op);
         println!("p1: {:?}", (&x1, &y1));
