@@ -36,6 +36,7 @@ impl<'a> Parser<'a> {
                     + left.len();
 
                 while next_pattern_index > pattern_index {
+                    // we split two times, so we don't get the pattern in any of the splits
                     let (left_side, _) = input.split_at(pattern_index + 1);
                     left = left_side;
                     let (_, right_side) = input.split_at(pattern_index + 1 + pat.len());
@@ -151,5 +152,36 @@ mod tests {
         println!("c: {:?}", c);
 
         assert_eq!((a, b, c), (Ok(775), Ok(785), Ok(361)));
+    }
+
+    #[test]
+    fn short_input() {
+        let input = "1x1";
+        let template = "{}x{}";
+
+        println!("input: '{}'", input);
+        println!("pattern: '{}'", template);
+
+        let (a, b) = try_parse!(input, template, usize, usize).unwrap();
+
+        println!("a: {:?}", a);
+        println!("b: {:?}", b);
+
+        assert_eq!((a, b), (Ok(1), Ok(1)))
+    }
+
+    #[test]
+    fn match_whole_input() {
+        let input = "3240955";
+        let template = "{}";
+
+        println!("input: '{}'", input);
+        println!("pattern: '{}'", template);
+
+        let a = try_parse!(input, template, usize).unwrap();
+
+        println!("a: {:?}", a);
+
+        assert_eq!(a, Ok(3240955))
     }
 }
