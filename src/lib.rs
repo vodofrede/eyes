@@ -15,7 +15,7 @@ impl<'a> Captures<'a> {
     ///
     /// The input and template strings must live as long as the list of captures itself, as the captures list borrows from them.
     ///
-    /// # Examples
+    /// ## Examples
     ///
     /// Basic usage:
     /// ```
@@ -124,7 +124,7 @@ macro_rules! try_parse {
 /// - The template does not match the input.
 /// - The capture could not be converted to the specified type.
 ///
-/// # Examples
+/// ## Examples
 ///
 /// Basic usage:
 /// ```
