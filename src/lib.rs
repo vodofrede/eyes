@@ -1,8 +1,28 @@
-pub struct Parser<'a> {
+#![allow(clippy::needless_question_mark)]
+#![warn(clippy::all, clippy::cargo)]
+#![deny(missing_docs, unsafe_code)]
+#![doc = include_str!("../README.md")]
+
+/// A list of captures, created by calling [`Captures::new()`] with the input and template strings.
+///
+/// An easier way to use this struct is with the [`eyes::parse`] and [`eyes::try_parse`] macros, which allow for automatic type conversion of captures.
+pub struct Captures<'a> {
     captures: Vec<&'a str>,
 }
 
-impl<'a> Parser<'a> {
+impl<'a> Captures<'a> {
+    /// Create a new list of captures from input and template strings.
+    ///
+    /// The input and template strings must live as long as the list of captures itself, as the captures list borrows from them.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    /// ```
+    /// # use eyes::Captures;
+    /// let captures = Captures::new("haystack|needle|haystack", "haystack|{}|haystack");
+    /// assert_eq!(captures.unwrap().to_inner()[0], "needle");
+    /// ```
     pub fn new(input: &'a str, template: &'a str) -> Option<Self> {
         // find all patterns in the template
         let patterns = template
@@ -56,39 +76,68 @@ impl<'a> Parser<'a> {
         Some(Self { captures })
     }
 
-    pub fn captures(&self) -> Vec<&'a str> {
+    /// Get the internal representation of the captures as an owned value, which allow usage of standard [`Vec`] methods.
+    pub fn to_inner(&self) -> Vec<&'a str> {
         self.captures.to_owned()
+    }
+
+    /// Get the internal representation of the captures as a reference, which allow usage of standard [`Vec`] methods.
+    pub fn as_inner(&self) -> &Vec<&'a str> {
+        &self.captures
     }
 }
 
-#[macro_export]
-macro_rules! parse {
-    ($input: expr, $pattern: tt, $($type:ty),*) => {
-        {
-            let parser = $crate::Parser::new($input, $pattern).unwrap();
-            let captures = parser.captures();
-            let mut iter = captures.iter();
-
-            ($(iter.next().unwrap().parse::<$type>().unwrap()),*)
-        }
-    };
-}
-
+/// Parse an input and template, and convert the captures to the specified types.
+/// This version returns an option, indicating whether the input matched the template by returning None in the negative case.
+///
+/// # Examples
+///
+/// Basic usage:
+/// ```
+/// # #[macro_use] extern crate eyes;
+/// if let Some((a, b, c)) = eyes::try_parse!("1 2,3", "{} {},{}", u8, u8, u8) {
+///     assert!(a == 1 && b == 2 && c == 3);
+/// } else {
+///     unreachable!("This should not happen, as the pattern is matchable to the input");
+/// }
+/// ```
 #[macro_export]
 macro_rules! try_parse {
     ($input: expr, $pattern: tt, $($type:ty),*) => {
         {
-            if let Some(parser) = $crate::Parser::new($input, $pattern) {
-                let captures = parser.captures();
-                let mut iter = captures.iter();
+            #[allow(clippy::all)]
+            $crate::Captures::new($input, $pattern)
+                .and_then(|c| {
+                    let mut iter = c.as_inner().iter();
 
-                Some(($(iter.next().unwrap().parse::<$type>()),*))
-            } else {
-                None
-            }
-
-
+                    Some(($(iter.next()?.parse::<$type>().ok()?),*))
+                })
         }
+    };
+}
+
+/// Parse an input and template, and convert the captures to the specified types.
+///
+/// ## Panics
+///
+/// This macro unwraps the parse result, causing a panic in any of the following cases:
+/// - The template does not match the input.
+/// - The capture could not be converted to the specified type.
+///
+/// # Examples
+///
+/// Basic usage:
+/// ```
+/// # #[macro_use] extern crate eyes;
+/// # fn main() {
+/// let (a, b, c) = eyes::parse!("1 2,3", "{} {},{}", u8, u8, u8);
+/// assert!(a == 1 && b == 2 && c == 3);
+/// # }
+/// ```
+#[macro_export]
+macro_rules! parse {
+    ($input: expr, $pattern: tt, $($type:ty),*) => {
+        try_parse!($input, $pattern, $($type),*).unwrap()
     };
 }
 
@@ -132,8 +181,8 @@ mod tests {
         println!("p2: {:?}", (&x2, &y2));
 
         assert_eq!(
-            (op.unwrap().as_str(), x1, y1, x2, y2),
-            ("turn off", Ok(660), Ok(55), Ok(986), Ok(197))
+            (op.as_str(), x1, y1, x2, y2),
+            ("turn off", 660, 55, 986, 197)
         );
     }
 
@@ -151,7 +200,7 @@ mod tests {
         println!("b: {:?}", b);
         println!("c: {:?}", c);
 
-        assert_eq!((a, b, c), (Ok(775), Ok(785), Ok(361)));
+        assert_eq!((a, b, c), (775, 785, 361));
     }
 
     #[test]
@@ -167,7 +216,7 @@ mod tests {
         println!("a: {:?}", a);
         println!("b: {:?}", b);
 
-        assert_eq!((a, b), (Ok(1), Ok(1)))
+        assert_eq!((a, b), (1, 1))
     }
 
     #[test]
@@ -182,6 +231,6 @@ mod tests {
 
         println!("a: {:?}", a);
 
-        assert_eq!(a, Ok(3240955))
+        assert_eq!(a, 3240955)
     }
 }

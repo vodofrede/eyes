@@ -1,6 +1,6 @@
 [package]
 name = "eyes"
-version = "1.1.2"
+version = "1.2.0"
 edition = "2018"
 description = "A simpler way to parse using human-readable templates"
 license="BSD-3-Clause"
@@ -9,6 +9,5 @@ repository = "https://git.palmoe.dk/vodofrede/eyes/"
 readme = "README.md"
 keywords = ["parsing", "parse", "simple", "no-deps"]
 categories = ["encoding", "parsing", "text-processing"]
-exclude = [".gitignore", "src/main.rs"]
 
 [dependencies]

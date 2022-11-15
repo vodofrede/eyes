@@ -1,53 +1,44 @@
-# Eyes
+# eyes
 
-## A simpler way to parse using human-readable templates
+A simpler way to parse using human-readable templates.
 
-Eyes was made for the primary purpose of parsing challenge inputs for [Advent of Code](https://adventofcode.com) challenges.
+The crate's primary purpose is parsing challenge inputs for [Advent of Code](https://adventofcode.com) challenges. It currently provides limited functionality, but more options may be added provided they are useful additions for parsing slightly more complicated formats.
 
-It currently provides limited functionality, but more options may be added provided they are useful additions for parsing slightly more complicated formats.
+This crate does not have any dependencies, as I wanted to keep it simple to and lightweight in design.
 
-Eyes does not have any dependencies, as I wanted to keep it simple to and lightweight in design. Good performance is not guaranteed, as the library isn't well tested yet.
+## Syntax
 
-I was told this functionality is similar to `scanf` from C.
+The only special characters in templates are curly brackets ('{}'). These act as stand-ins for where the extracted values are in the input strings.
 
-### Examples:
+## Examples:
 
 ```rust
+# #[macro_use] extern crate eyes;
+# fn main() {
 let input = "#lol @ 338,7643: 20.2x24.5";
 let template = "#{} @ {},{}: {}x{}";
 
-println!("input: '{}'", input);
-println!("pattern: '{}'", template);
-
-let (id, x, y, w, h) = parse!(input, template, String, isize, isize, f64, f64);
-
-println!("id: {:?}", id);
-println!("x: {:?}", x);
-println!("y: {:?}", y);
-println!("w: {:?}", w);
-println!("h: {:?}", h);
+let (id, x, y, w, h) = eyes::parse!(input, template, String, isize, isize, f64, f64);
 
 assert_eq!((id.as_str(), x, y, w, h), ("lol", 338, 7643, 20.2, 24.5));
-
+# }
 ```
 
-**Eyes** will try to expand its captures, so that the following example also works as expected:
+**eyes** will try to expand capture groups, so that the following example also works as expected:
 
 ```rust
+# #[macro_use] extern crate eyes;
+# fn main() {
 let input = "turn off 660,55 through 986,197";
 let template = "{} {},{} through {},{}";
 
-println!("input: '{}'", input);
-println!("pattern: '{}'", template);
-
-let (op, x1, y1, x2, y2) = try_parse!(input, template, String, usize, usize, usize, usize);
-
-println!("op: {:?}", op);
-println!("p1: {:?}", (&x1, &y1));
-println!("p2: {:?}", (&x2, &y2));
+let (op, x1, y1, x2, y2) = eyes::parse!(input, template, String, usize, usize, usize, usize);
 
 assert_eq!(
-    (op.unwrap().as_str(), x1, y1, x2, y2),
-    ("turn off", Ok(660), Ok(55), Ok(986), Ok(197))
+    (op.as_str(), x1, y1, x2, y2),
+    ("turn off", 660, 55, 986, 197)
 );
+# }
 ```
+
+Notice that "turn off" is captured correctly, even though it contains a space.
