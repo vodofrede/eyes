@@ -137,7 +137,7 @@ macro_rules! try_parse {
 #[macro_export]
 macro_rules! parse {
     ($input: expr, $pattern: tt, $($type:ty),*) => {
-        try_parse!($input, $pattern, $($type),*).unwrap()
+        $crate::try_parse!($input, $pattern, $($type),*).unwrap()
     };
 }
 
