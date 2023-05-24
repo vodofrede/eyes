@@ -5,7 +5,7 @@
 
 /// A list of captures, created by calling [`Captures::new()`] with the input and template strings.
 ///
-/// An easier way to use this struct is with the [`eyes::parse`] and [`eyes::try_parse`] macros, which allow for automatic type conversion of captures.
+/// An easier way to use this struct is with the [`parse`] and [`try_parse`] macros, which allow for automatic type conversion of captures.
 pub struct Captures<'a> {
     captures: Vec<&'a str>,
 }
@@ -137,7 +137,9 @@ macro_rules! try_parse {
 #[macro_export]
 macro_rules! parse {
     ($input: expr, $pattern: tt, $($type:ty),*) => {
-        $crate::try_parse!($input, $pattern, $($type),*).unwrap()
+        {
+            $crate::try_parse!($input, $pattern, $($type),*).unwrap()
+        }
     };
 }
 
