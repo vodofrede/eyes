@@ -8,7 +8,7 @@ This crate does not have any dependencies, as I wanted to keep it simple to and 
 
 ## Syntax
 
-The only special characters in templates are curly brackets ('{}'). These act as stand-ins for where the extracted values are in the input strings.
+The only special characters in templates are curly brackets `{}`. These act as stand-ins for where the extracted values are in the input strings.
 
 ## Examples:
 
@@ -39,7 +39,7 @@ assert_eq!(
 
 Notice that "turn off" is captured correctly, even though it contains a space.
 
-For error handling, the [`try_parse`] macro is provided which can be very useful in parsing potentially malformed input:
+For error handling, the `try_parse` macro is provided which can be very useful in parsing potentially malformed input:
 
 ```rust
 use eyes::try_parse;
